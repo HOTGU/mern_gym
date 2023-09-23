@@ -1,11 +1,19 @@
 import axios from "axios";
 import React from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import instance from "../apis/apiConfig";
 import Button from "../components/Button";
 import Input from "../components/inputs/Input";
+import { AuthContext } from "../context/authContext";
+import { AuthContextType } from "../types/authContextTypes";
 
 const Auth = () => {
   const [isSignup, setIsSignup] = React.useState(false);
+  const { auth, onSignin, onSignout } = React.useContext(
+    AuthContext
+  ) as AuthContextType;
+
+  console.log(2);
 
   const {
     handleSubmit,
@@ -16,11 +24,18 @@ const Auth = () => {
   const onValid: SubmitHandler<FieldValues> = async (data) => {
     console.log(data);
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/user/signup",
-        data
-      );
-      console.log(res);
+      if (isSignup) {
+        const res = await instance.post("/api/user/signup", data);
+      } else {
+        const res = await instance.post("/api/user/signin", data);
+        if (res.status === 200) {
+          const {
+            data: { accessToken, userEmail, userNickname },
+          } = res;
+          console.log(res);
+          onSignin(accessToken, userEmail, userNickname);
+        }
+      }
     } catch (error) {
       console.log(error);
     }

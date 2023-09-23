@@ -7,4 +7,6 @@ userRouter.post("/signin", userController.signin);
 
 userRouter.post("/signup", userController.signup);
 
+userRouter.post("/refresh", userController.refresh);
+
 export default userRouter;
