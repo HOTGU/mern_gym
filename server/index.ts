@@ -8,10 +8,11 @@ import express, {
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import jwt from "jsonwebtoken";
 
 import userRouter from "./routes/userRouter";
 import { PrismaClient } from "@prisma/client";
+import jwt from "./libs/jwt";
+import CONSTANT from "./constant";
 
 //For env File
 dotenv.config();
@@ -35,38 +36,34 @@ app.use(
     if (!req.headers.authorization)
       return res.status(401).json({ message: "인증헤더가 없음" });
 
-    const token = req.headers.authorization.split(" ")[1]; //access token
-
-    // return res.status(401).json({ message: "인증토큰이 없음" });
-    if (!token) return res.status(401).json({ message: "인증토큰이 없음" });
-
-    const decoded = jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET as string
-    ) as { id: string; lat: number; lng: number };
-
-    if (!decoded)
-      return res.status(401).json({ message: "허가된 토큰이 아님" });
-
     try {
+      const token = req.headers.authorization.split(" ")[1]; //access token
+
+      if (!token) return res.status(401).json({ message: "인증토큰이 없음" });
+
+      const id = jwt.verifyAccessToken(token);
+
+      if (!id)
+        return res.status(403).json({ message: "no verified access token" });
+
       const prisma = new PrismaClient();
 
-      const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      const user = await prisma.user.findUnique({ where: { id } });
+
+      if (!user) {
+        return res.status(403).json({ message: "no exists user" });
+      }
 
       //@ts-ignore
       req.user = user;
 
       next();
-    } catch (error) {
+    } catch (error: any) {
       return res.status(500).json({ message: "서버 오류" });
     }
   },
   (req: Request, res: Response) => {
     //@ts-ignore
-    console.log(req.user);
-
-    //@ts-ignore
-
     res.status(200).json(req.user);
   }
 );
@@ -79,4 +76,10 @@ app.get("/", (req: Request, res: Response) => {
 
 app.listen(port, () => {
   console.log(`Server is Fire at http://localhost:${port}`);
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  const message = err.message || CONSTANT.ERROR_MESSAGE.SERVER;
+  const status = err.status || CONSTANT.STATUS[500];
+  return res.status(status).json({ message });
 });

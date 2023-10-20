@@ -10,11 +10,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ProviderType {
+  LOCAL
+  GOOGLE
+  KAKAO
+}
+
+enum PostCategoryType {
+  FREE
+  ASK
+  FLEX
+  REVIEW
+  SHARING
+}
+
 model User {
-  id        String   @unique @default(uuid())
-  email     String   @unique @db.VarChar(50)
-  password  String   @db.VarChar(50)
-  nickname  String   @db.VarChar(50)
+  id           String       @id @unique @default(uuid())
+  email        String?      @unique @db.VarChar(50)
+  password     String?      @db.VarChar(100)
+  nickname     String       @db.VarChar(50)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  provider     ProviderType @default(LOCAL)
+  providerId   String?
+  refreshToken String?
+
+  posts     Post[]
+  galleries Gallery[]
+  comments  Comment[]
+}
+
+model Post {
+  id        String           @id @unique @default(uuid())
+  title     String           @db.VarChar(100)
+  desc      String           @db.VarChar(1000)
+  category  PostCategoryType @default(FREE)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  comments Comment[]
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
+
+model Gallery {
+  id        String   @id @unique @default(uuid())
+  title     String   @db.VarChar(100)
+  desc      String   @db.VarChar(1000)
+  images    String[]
+  thumbnail String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  comments Comment[]
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
+
+model Comment {
+  id        String   @id @unique @default(uuid())
+  desc      String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+
+  post   Post?   @relation(fields: [postId], references: [id])
+  postId String?
+
+  gallery   Gallery? @relation(fields: [galleryId], references: [id])
+  galleryId String?
 }

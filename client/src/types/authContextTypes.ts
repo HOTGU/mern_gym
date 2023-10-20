@@ -1,3 +1,5 @@
+import { SetStateAction } from "react";
+
 export type AuthType = {
   loggedIn: boolean;
   email: string;
@@ -13,4 +15,9 @@ export type AuthContextType = {
   ) => void;
   onSignout: () => void;
   loading: boolean;
+  error: {
+    message: string;
+    redirectUrl: string;
+  };
+  setError: SetStateAction<boolean>;
 };

@@ -10,3 +10,13 @@ export interface InputProps {
   disabled?: boolean;
   small?: boolean;
 }
+
+export interface TextareaProps {
+  name: string;
+  control: Control;
+  errors: FieldErrors;
+  required?: boolean;
+  label: string;
+  disabled?: boolean;
+  small?: boolean;
+}

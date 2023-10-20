@@ -1,13 +1,19 @@
 import React, { useEffect } from "react";
-import { Link, Navigate, redirect } from "react-router-dom";
+import { Link, Navigate, redirect, useNavigate } from "react-router-dom";
 import instance from "../apis/apiConfig";
 import { AuthContext } from "../context/authContext";
 import { AuthContextType } from "../types/authContextTypes";
+import useErrorHandler from "../hooks/useErrorHandler";
+import { toast } from "react-toastify";
 
 const Home = () => {
-  const { auth } = React.useContext(AuthContext) as AuthContextType;
+  const navigate = useNavigate();
+  const errorHandler = useErrorHandler();
+  const { auth, loading } = React.useContext(AuthContext) as AuthContextType;
 
-  console.log(auth);
+  if (loading) {
+    return <>loading</>;
+  }
 
   return (
     <div>
@@ -17,9 +23,9 @@ const Home = () => {
         onClick={async () => {
           try {
             const res = await instance.get("/api/test");
-            console.log(res);
+            toast.success("test success");
           } catch (error) {
-            console.log(error);
+            errorHandler(error);
           }
         }}
       >

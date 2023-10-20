@@ -31,7 +31,7 @@ const AuthContextProvider = ({ children }: PropsWithChildren) => {
           onSignin(accessToken, userEmail, userNickname);
         }
       })
-      .catch((err) => console.log(err))
+      .catch(() => setAuth(null))
       .finally(() => setLoading(false));
   }, []);
 
@@ -56,7 +56,7 @@ const AuthContextProvider = ({ children }: PropsWithChildren) => {
 
   const value = React.useMemo(
     () => ({ auth, onSignin, onSignout, loading }),
-    [auth, onSignin, setAuth, onSignout, loading]
+    [auth, onSignin, onSignout, loading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

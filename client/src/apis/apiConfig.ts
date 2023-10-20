@@ -1,4 +1,5 @@
 import axios from "axios";
+import CONSTANT from "../constant";
 
 const instance = axios.create({
   baseURL: "http://localhost:8000",
@@ -6,33 +7,48 @@ const instance = axios.create({
 });
 
 instance.interceptors.response.use(
-  async (response) => {
+  (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
     const {
       config,
-      response: { status },
+      response: { status, data },
     } = error;
 
-    if (
-      config.url === "http://localhost:8000/api/user/refresh" ||
-      status !== 401 ||
-      config.sent
-    ) {
+    if (config.sent) {
       return Promise.reject(error);
     }
 
-    config.sent = true;
+    if (
+      data.message === CONSTANT.ERROR_MESSAGE.REFRESH_TOKEN
+      // data.message === CONSTANT.ERROR_MESSAGE.NO_EXISTS_USER
+    ) {
+      // error.isRefresh = true;
+      return Promise.reject(error);
+    }
 
-    // refresh 처리
-    instance.post("/api/user/refresh").then((res) => {
-      instance.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${res.data.accessToken}`;
-    });
+    if (status === 401 || status === 403) {
+      config.sent = true;
 
-    return instance(config);
+      const originalRequest = config;
+
+      try {
+        const res = await instance.post("/api/user/refresh");
+
+        instance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${res.data.accessToken}`;
+
+        originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+
+        return instance.request(originalRequest);
+      } catch (error: any) {
+        return Promise.reject(error);
+      }
+    }
+
+    return Promise.reject(error);
   }
 );
 
