@@ -5,6 +5,7 @@ import Auth from "./routes/Auth";
 import Home from "./routes/Home";
 import Community from "./routes/Community";
 import CommunityDetail from "./routes/CommunityDetail";
+import Gallery from "./routes/Gallery";
 
 const Router = () => {
   return (
@@ -20,6 +21,7 @@ const Router = () => {
       <Route path="/auth" element={<Auth />} />
       <Route path="/community" element={<Community />} />
       <Route path="/community/:id" element={<CommunityDetail />} />
+      <Route path="/gallery" element={<Gallery />} />
     </Routes>
   );
 };

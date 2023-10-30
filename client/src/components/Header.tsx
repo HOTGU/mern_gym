@@ -15,7 +15,9 @@ const Header = () => {
           {auth?.loggedIn ? (
             <div className="flex gap-4 items-center">
               <div>프로등록</div>
-              <div>갤러리</div>
+              <Link to="/gallery">
+                <div>갤러리</div>
+              </Link>
               <Link to="/community">
                 <div>커뮤니티</div>
               </Link>

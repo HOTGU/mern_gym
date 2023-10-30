@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo } from "react";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+
 import Modal from "./Modal";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { postActions } from "../../reducers/post/postSlice";
 import Input from "../inputs/Input";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import Textarea from "../inputs/Textarea";
 import { getOptions } from "../../libs/util";
 import Select from "../inputs/Select";
 import { Id, toast } from "react-toastify";
 import postThunk from "../../reducers/post/postThunk";
 
-const PostCreateModal = () => {
+const PostUpdateModal = () => {
   const postState = useAppSelector((state) => state.postSlice);
   const dispatch = useAppDispatch();
   const toastRef = React.useRef<Id>();
@@ -23,6 +24,11 @@ const PostCreateModal = () => {
     formState: { errors },
   } = useForm<FieldValues>({
     defaultValues: { category: "FREE", title: "", desc: "" },
+    values: useMemo(() => {
+      return {
+        ...postState.post,
+      };
+    }, [postState.post]),
   });
 
   useEffect(() => {
@@ -30,7 +36,7 @@ const PostCreateModal = () => {
       if (postState.status === "SUCCESS") {
         toast.update(toastRef.current, {
           type: "success",
-          render: "생성 성공",
+          render: "수정 성공",
           isLoading: false,
           autoClose: 2000,
         });
@@ -38,7 +44,7 @@ const PostCreateModal = () => {
       if (postState.status === "ERROR") {
         toast.update(toastRef.current, {
           type: "error",
-          render: "생성 실패",
+          render: "수정 실패",
           isLoading: false,
           autoClose: 2000,
         });
@@ -51,16 +57,11 @@ const PostCreateModal = () => {
     [postState.status]
   );
 
-  const onClose = () => {
-    if (isLoading) {
-      return;
-    }
-    dispatch(postActions.createModalClose({}));
-  };
+  const onClose = () => dispatch(postActions.updateModalClose({}));
 
   const onValid: SubmitHandler<FieldValues> = (data) => {
-    toastRef.current = toast.loading("생성중");
-    dispatch(postThunk.addPost(data));
+    toastRef.current = toast.loading("수정중");
+    dispatch(postThunk.updatePost(data));
   };
 
   const body = (
@@ -91,12 +92,12 @@ const PostCreateModal = () => {
 
   return (
     <Modal
-      isOpen={postState.createModalIsOpen}
+      isOpen={postState.updateModalIsOpen}
       onClose={onClose}
-      label="글쓰기"
-      actionLabel="제출"
+      label="글수정"
+      actionLabel="수정"
       secondActionLabel="취소"
-      secondAction={onClose}
+      secondAction={() => {}}
       onAction={handleSubmit(onValid)}
       body={body}
       disabled={isLoading}
@@ -104,4 +105,4 @@ const PostCreateModal = () => {
   );
 };
 
-export default PostCreateModal;
+export default PostUpdateModal;

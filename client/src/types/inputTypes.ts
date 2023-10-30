@@ -11,6 +11,16 @@ export interface InputProps {
   small?: boolean;
 }
 
+export interface FileInputProps {
+  name: string;
+  control: Control;
+  errors: FieldErrors;
+  required?: boolean;
+  label: string;
+  disabled: boolean;
+  isMulti?: boolean;
+}
+
 export interface TextareaProps {
   name: string;
   control: Control;

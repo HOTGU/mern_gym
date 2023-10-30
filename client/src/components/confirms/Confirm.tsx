@@ -9,24 +9,18 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   label: string;
-  actionLabel: string;
   onAction: () => void;
-  secondActionLabel?: string;
-  secondAction?: () => void;
   disabled?: boolean;
-  body: React.ReactElement;
+  text: string;
 }
 
-const Modal = ({
+const Confirm = ({
   isOpen,
   onClose,
   label,
-  actionLabel,
   onAction,
-  secondActionLabel,
-  secondAction,
   disabled,
-  body,
+  text,
 }: ModalProps) => {
   return (
     <AnimatePresence>
@@ -57,20 +51,18 @@ const Modal = ({
               </div>
             </div>
             {/* modal body */}
-            <div className="flex-1 px-6">{body}</div>
+            <div className="flex-1 px-6">{text}</div>
             {/* modal foot */}
             <div className="px-6 py-4 flex gap-6">
-              {secondAction && secondActionLabel && (
-                <Button
-                  label={secondActionLabel}
-                  onAction={secondAction}
-                  theme="secondary"
-                  disabled={disabled}
-                  small
-                />
-              )}
               <Button
-                label={actionLabel}
+                label="아니오"
+                onAction={onClose}
+                theme="secondary"
+                disabled={disabled}
+                small
+              />
+              <Button
+                label="네"
                 onAction={onAction}
                 small
                 disabled={disabled}
@@ -83,4 +75,4 @@ const Modal = ({
   );
 };
 
-export default Modal;
+export default Confirm;
